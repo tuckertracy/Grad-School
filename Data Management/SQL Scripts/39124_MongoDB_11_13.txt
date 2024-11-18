@@ -1,0 +1,84 @@
+mongodb+srv://MIST7600:MIST7600@cluster0.dy9ds.mongodb.net/
+
+//Find movies with 5 comments
+db["movies"].find({num_mflix_comments:{$eq:5}},{title:1,num_mflix_comments:1})
+//Find movies with more than 5 comments
+db["movies"].find({num_mflix_comments:{$gt:5}},{title:1,num_mflix_comments:1})
+//Find movies with fewer than or equal to 5 comments
+db["movies"].find({num_mflix_comments:{$lte:5}},{title:1,num_mflix_comments:1})
+//Find movies with NOT equal to 5 comments
+db["movies"].find({num_mflix_comments:{$ne:5}},{title:1,num_mflix_comments:1})
+
+//$in
+//Find movies rated "G", "PG", or "PG-13"
+db["movies"].find({rated:{$in:["G","PG","PG-13"]}},{title:1,rated:1})
+//Find movies rated NOT in "G", "PG", or "PG-13"
+db["movies"].find({rated:{$nin:["G","PG","PG-13"]}},{title:1,rated:1})
+
+//$not
+//Find movies rated NOT in "G", "PG", or "PG-13"
+db["movies"].find({rated:{$not:{$in:["G","PG","PG-13"]}}},{title:1,rated:1})
+
+//Logical operators
+//Find movies with rated="G" and released in 2008
+db["movies"].find({$and:[{rated:"G"},{year:2008}]},{title:1,rated:1,year:1})
+//Find movies with rated="G" OR released in 2008
+db["movies"].find({$or:[{rated:"G"},{year:2008}]},{title:1,rated:1,year:1})
+//Find movies with rated="G" OR rated="PG" OR released in 2008
+db["movies"].find({$or:[{rated:"G"},{year:2008},{rated:"PG"}]},{title:1,rated:1,year:1})
+
+//Regular expressions
+//Find movies with titles containing a term
+db["movies"].find({title:{$regex:"Opera"}},{title:1})
+
+//Query Array
+//Find movies with a specific actor/actress
+db["movies"].find({cast:"Charles Chaplin"},{title:1,cast:1})
+//Find movies in English and German
+db["movies"].find({languages:["English","German"]},{title:1,languages:1})
+db["movies"].find({languages:["German","English"]},{title:1,languages:1})
+db["movies"].countDocuments({languages:["English","German"]},{title:1,languages:1})
+db["movies"].countDocuments({languages:["German","English"]},{title:1,languages:1})
+db["movies"].find({$and:[{languages:"English"},{languages:"German"}]},{title:1,languages:1})
+db["movies"].countDocuments({$and:[{languages:"English"},{languages:"German"}]},{title:1,languages:1})
+
+//Query Subdocument
+//Find movies with wins=1
+db["movies"].find({awards:{wins:1,nominations:0,text:"1 win."}},{title:1,awards:1})
+db["movies"].find({awards:{wins:1,nominations:0}},{title:1,awards:1})
+db["movies"].find({"awards.wins":1},{title:1,awards:1})
+db["movies"].find({$and:[{"awards.wins":1},{"awards.nominations":0}]},{title:1,awards:1})
+
+//Array size
+db["movies"].find({cast:{$size:3}},{title:1,cast:1})
+//Existence of field
+db["movies"].find({plot:{$exists:1}},{title:1,plot:1})
+
+//Limit, sort, skip
+db["movies"].find({$and:[{"awards.wins":1},{"awards.nominations":0}]},{title:1,awards:1}).limit(3)
+db["movies"].find({$and:[{"awards.wins":1},{"awards.nominations":0}]},{title:1,awards:1}).skip(5)
+db["movies"].find({$and:[{"awards.wins":1},{"awards.nominations":0}]},{title:1,awards:1,year:1}).sort({year:-1})
+
+//Insert
+db["movies"].insertOne({"_id":10,"title":"Dunkird"})
+db["movies"].find({"_id":10})
+
+db["movies"].insertMany([{"_id":11,"title":"MacBeth",year:1980},{"_id":12,"title":"MacBeth II",year:1990}])
+
+//Delete
+db["movies"].deleteOne({"_id":10})
+db["movies"].deleteMany({title:"MacBeth"})
+
+//Replace
+db["movies"].replaceOne({"_id":12},{"_id":12,"title":"MacBeth II",year:1995})
+db["movies"].replaceOne({"_id":12},{"_id":12,year:2000})
+
+db["movies"].replaceOne({"_id":13},{"_id":13,"title":"MacBeth III",year:2010})
+db["movies"].replaceOne({"_id":13},{"_id":13,"title":"MacBeth III",year:2010},{upsert:true})
+
+//Update
+db["movies"].updateOne({"_id":13},{$set:{year:2012}})
+db["movies"].updateOne({"_id":13},{$rename:{year:"year_of_release"}})
+
+db["movies"].updateOne({"_id":14},{$set:{"_id":14,title:"Catch Me If You Can"}},{upsert:true})
+
